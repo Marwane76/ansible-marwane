@@ -1,0 +1,50 @@
+---
+
+
+-  hosts: db1
+   gather_facts: no
+   tasks:
+
+#MARIADB
+
+     - name: add software-properties-common
+       apt: 
+        name: software-properties-common
+     
+     - apt_key:
+        url: "https://mariadb.org/mariadb_release_signing_key.asc"
+        state: present
+
+     - apt_repository:
+         repo: deb http://mariadb.mirror.globo.tech/repo/10.5/ubuntu focal main
+         state: present
+
+     - name: Install MariaDB repository
+       apt: name=mariadb-client state=latest
+
+
+    - name: Create myapp database
+      mysql_db:
+        name: myapp
+        login_user: root
+        login_password: "{{mysql_root_password.stdout}}"
+        login_host: localhost
+        state: present
+      when: is_root_password_set.rc == 0
+
+
+    - name: Generate myapp\_rw password
+      shell: tr -d -c "a-zA-Z0-9" < /dev/urandom | head -c 10
+      register: mysql_myapp_rw_password
+      when: is_root_password_set.rc == 0
+
+    - name: Create user for myapp db
+      mysql_user:
+        name: myapp_rw
+        password: "{{mysql_myapp_rw_password}}"
+        priv: myapp.*:SELECT,INSERT,UPDATE,DELETE
+        login_user:
+        root login_password: "{{mysql_root_password.stdout}}"
+        state: present
+      when: is_root_password_set.rc == 0
+
