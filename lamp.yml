@@ -1,0 +1,141 @@
+---
+
+
+-  hosts: web1
+   gather_facts: no
+   tasks:
+
+#INSTALLATION DES PREREQUIS
+
+
+
+     - name: Install apt-transport-https
+       apt:
+        name: apt-transport-https
+#GIT
+
+     - name: git
+       apt: name=git state=latest
+
+#MARIADB
+
+     - name: add software-properties-common
+       apt:
+        name: software-properties-common
+
+     - apt_key:
+        url: "https://mariadb.org/mariadb_release_signing_key.asc"
+        state: present
+
+     - apt_repository:
+         repo: deb http://mariadb.mirror.globo.tech/repo/10.5/ubuntu focal main
+         state: present
+
+     - name: Install MariaDB repository
+       apt: name=mariadb-client state=latest
+
+
+#GETMAIL/BINUTILS
+     - name: Install getmail4
+       apt:
+        name:
+        - getmail4
+        - binutils
+
+
+#OPENSSL/MAILUTILS
+
+     - name: Install require packages
+       apt:
+        name:
+        - openssl
+        - mailutils
+        - ssl-cert
+
+#APACHE
+
+     - name: install apache2
+       apt: name=apache2  state=latest
+
+     - name: install apache2.2
+       apt:
+        name:
+        - apache2-utils
+        - libexpat1
+        - libapache2-mod-fcgid
+        - mcrypt
+
+     - apache2_module:
+         state: present
+         name: suexec
+
+     - apache2_module:
+         state: present
+         name: rewrite
+
+     - apache2_module:
+         state: present
+         name: ssl
+
+     - apache2_module:
+         state: present
+         name: actions
+
+     - apache2_module:
+         state: present
+         name: include
+
+     - apache2_module:
+         state: present
+         name: expires
+
+     - apache2_module:
+         state: present
+         name: headers
+
+     - name: install apache2-utils
+       apt:
+        name: apache2-utils
+
+     - name: Restart service apache, in all cases
+       service:
+         name: apache2
+         state: restarted
+
+#PHP
+
+     - name: Install php
+       apt:
+         name: php7.4
+
+     - name: Install php add-ons
+       apt:
+        name:
+        - libzip5
+        - php-zip
+        - php-xml
+        - php-mbstring
+        - php-mysql
+        - php-curl
+        - php-gd
+        - php-intl
+        - php-pear
+        - php-imagick
+        - php-tidy
+        - php-xmlrpc
+        - php-cli
+        - php-bcmath
+        - php-ctype
+        - php-iconv
+        - php-json
+#        - php-cre
+#        - php-session
+#        - php-simplexlm
+        - php-tokenizer
+        - php-intl
+        - php-imagick
+        - php-gd
+ #       - php-zlib
+ #       - php-openssl
+        - php-opcache
+        - php-memcached
